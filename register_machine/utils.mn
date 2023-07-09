@@ -1,0 +1,10 @@
+
+// REG1 = REG1 / 2
+operation div_by_2(REG1, AUX) {
+    1: do add(AUX, REG1) goto 2
+    2: if zero AUX then goto 0 else goto 3
+    3: do dec AUX goto 4
+    4: if zero AUX then goto 0 else goto 5
+    5: do dec AUX goto 6
+    6: do inc REG1 goto 2
+}

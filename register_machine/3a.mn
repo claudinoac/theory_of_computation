@@ -1,0 +1,137 @@
+// OP1 += OP2
+operation add(OP1, OP2) {
+    1: if zero OP2 then goto 0 else goto 2
+    2: do dec OP2 goto 3
+    3: do inc OP1 goto 1
+}
+
+// REG := 0
+operation clear(REG) {
+    1: if zero REG then goto 0 else goto 2
+    2: do dec REG goto 1
+}
+
+// DST := SRC
+operation copy(DST, SRC) {
+    1: do clear(DST) goto 2
+    2: do clear(AUXT) goto 3
+    3: if zero SRC then goto 7 else goto 4
+    4: do dec SRC goto 5
+    5: do inc DST goto 6
+    6: do inc AUXT goto 3
+    7: do add(SRC, AUXT) goto 0
+}
+
+operation square(REG) {
+    1: do copy(SQ1, REG) goto 2
+    2: do copy(SQ2, SQ1) goto 3
+    3: do copy(SQ3, SQ1) goto 4
+    4: do dec SQ1 goto 5
+    5: if zero SQ1 then goto 9 else goto 6
+    6: do add(REG, SQ2) goto 7
+    7: do dec SQ1 goto 8
+    8: do copy(SQ2, SQ3) goto 5
+    9: do clear(SQ1) goto 10
+    10: do clear(SQ2) goto 11
+    11: do clear(SQ3) goto 0
+}
+
+
+operation double(REG) {
+    1: do copy(DB0, REG) goto 2
+    2: do add(REG, DB0) goto 0
+}
+
+// TST1 < TST2 ?
+test compare(TST1, TST2) {
+    1: do copy(TST3, TST1) goto 2
+    2: do copy(TST4, TST2) goto 3
+    3: if zero TST3 then goto 6 else goto 4
+    4: do dec TST3 goto 5
+    5: do dec TST4 goto 3
+    6: if zero TST4 then goto false else goto true
+    7: do clear(TST3) goto 8
+    8: do clear(TST4) goto false
+    9: do clear(TST3) goto 10
+    10: do clear(TST4) goto true
+}
+
+// No longer being used
+// operation cube(REG){
+//     1: do copy(REG0, REG) goto 2
+//     2: do copy(REG1, REG) goto 3
+//     3: do multiply(REG0, REG1, ACC) goto 4
+//     4: do copy(REG0, REG) goto 5
+//     5: do multiply(ACC, REG0, RES) goto 6
+//     6: do copy(REG, RES) goto 0
+// }
+
+operation triple(REG) {
+    1: do copy(DB0, REG) goto 2
+    2: do copy(DB1, REG) goto 3
+    3: do add(REG, DB0) goto 4
+    4: do add(REG, DB1) goto 0
+}
+
+operation multiply(REG0, REG1, RES){
+    1: do copy(MUL0, REG0) goto 2
+    2: if zero MUL0 then goto 3 else goto 4
+    3: do clear(RES) goto 0
+    4: do clear(RES) goto 5
+    5: do copy(MUL1, REG1) goto 6
+    6: do add(RES, MUL1) goto 7
+    7: do dec MUL0 goto 8
+    8: if zero MUL0 then goto 0 else goto 5
+}
+
+operation power_of_two(REG){
+    1: do clear(PT0) goto 2
+    2: do clear(PT1) goto 3
+    3: if zero REG then goto 5 else goto 4
+    4: do copy(PT1, REG) goto 6
+    5: do inc PT0 goto 0
+    6: do inc PT0 goto 7
+    7: do double(PT0) goto 8
+    8: do dec PT1 goto 9
+    9: if zero PT1 then goto 10 else goto 7
+    10: do copy(REG, PT0) goto 0
+}
+
+operation power_of_three(REG){
+    1: do clear(PT0) goto 2
+    2: do clear(PT1) goto 3
+    3: if zero REG then goto 5 else goto 4
+    4: do copy(PT1, REG) goto 6
+    5: do inc PT0 goto 0
+    6: do inc PT0 goto 7
+    7: do triple(PT0) goto 8
+    8: do dec PT1 goto 9
+    9: if zero PT1 then goto 10 else goto 7
+    10: do copy(REG, PT0) goto 0
+}
+
+operation divide_by_three(REG){
+    1: do copy(REG0, REG) goto 2
+    2: do clear(REG) goto 3
+    3: if zero REG0 then goto 0 else goto 4
+    4: do dec REG0 goto 5
+    5: if zero REG0 then goto 0 else goto 6
+    6: do dec REG0 goto 7
+    7: if zero REG0 then goto 0 else goto 8
+    8: do dec REG0 goto 9
+    9: do inc REG goto 3
+}
+
+operation codify(REG0, REG1, RES) {
+    1: do power_of_two(REG0) goto 2
+    2: do power_of_three(REG1) goto 3
+    3: do multiply(REG0, REG1, RES) goto 0
+}
+
+main{
+    1: do copy(INPUT, X) goto 2
+    2: do copy(AUX1, INPUT) goto 3
+    3: do copy(AUX2, INPUT) goto 4
+    4: do divide_by_three(AUX2) goto 5
+    5: do codify(AUX1, AUX2, Y) goto 0
+}

@@ -1,0 +1,70 @@
+	// Operação: A:= 0
+operation clear(A){
+    1: if zero A then goto 0 else goto 2
+    2: do dec A goto 1
+}
+
+
+// Operação: A:= A + B (B termina em 0)
+operation a_plus_b(A, B){
+    1: if zero B then goto 0 else goto 2
+    2: do dec B goto 3
+    3: do inc A goto 1
+}
+
+
+// Operação: A:= A - B
+operation a_minus_b(A, B){
+    1: if zero B then goto 0 else goto 2
+    2: do dec B goto 3
+    3: do dec A goto 1
+} 
+
+
+// Operação: A:= A + B usando C (valor de B é preservado)
+operation a_plus_b_with_c(A, B){
+    1: if zero B then goto 5 else goto 2
+    2: do dec B goto 3
+    3: do inc A goto 4
+    4: do inc C goto 1
+    5: if zero C then goto 0 else goto 6
+    6: do dec C goto 7
+    7: do inc B goto 5
+}
+
+
+// Operação: A:= B usando C(valor de B é preservado)
+operation copy_a_to_b(A, B){
+    1: do clear(A) goto 2
+    2: do a_plus_b_with_c(A, B) goto 0
+}
+
+
+// Operação: A:= 2xA
+operation mul_two(A){
+    1: do copy_a_to_b(B, A) goto 2
+    2: do a_plus_b(A, B) goto 0
+}
+
+
+// Operação: B:= 2^A
+operation two_nth_power(A, B){
+    1: if zero A then goto 2 else goto 3
+    2: do inc B goto 0
+    3: do inc B goto 4
+    4: do inc B goto 5
+    5: if cmp A 1 then goto 0 else goto 6
+    6: do dec A goto 7
+    7: do mul_two(B) goto 8
+    8: do dec A goto 9
+    9: if zero A then goto 0 else goto 7 
+}
+
+
+
+// Função main
+main{
+    1: do copy_a_to_b(A, X) goto 2
+    2: do two_nth_power(A, Y) goto 3
+    3: do a_minus_b(Y, X) goto 0
+}

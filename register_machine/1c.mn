@@ -1,0 +1,58 @@
+operation sum(OP1, OP2) {
+    1: if zero OP2 then goto 0 else goto 2
+    2: do dec OP2 goto 3
+    3: do inc OP1 goto 1
+}
+
+
+operation conservative_sum(A,B,C){
+    1: if zero B then goto 5 else goto 2 
+    2: do dec B goto 3 
+    3: do inc A goto 4 
+    4: do inc C goto 1 
+    5: if zero C then goto 0 else goto 6
+    6: do dec C goto 7 
+    7: do inc B goto 5 
+} 
+
+
+// REG := 0
+operation clear(REG) {
+    1: if zero REG then goto 0 else goto 2
+    2: do dec REG goto 1
+}
+
+// DST := SRC
+operation copy(DST, SRC) {
+    1: do clear(DST) goto 2
+    2: do clear(AUXT) goto 3
+    3: if zero SRC then goto 7 else goto 4
+    4: do dec SRC goto 5
+    5: do inc DST goto 6
+    6: do inc AUXT goto 3
+    7: do sum(SRC, AUXT) goto 0
+}
+
+operation square(REG) {
+    1: do copy(SQ1, REG) goto 2
+    2: do copy(SQ2, SQ1) goto 3
+    3: do copy(SQ3, SQ1) goto 4
+    4: do dec SQ1 goto 5
+    5: if zero SQ1 then goto 9 else goto 6
+    6: do sum(REG, SQ2) goto 7
+    7: do dec SQ1 goto 8
+    8: do copy(SQ2, SQ3) goto 5
+    9: do clear(SQ1) goto 10
+    10: do clear(SQ2) goto 11
+    11: do clear(SQ3) goto 0
+}
+
+main{
+    1: do inc I goto 2
+	2: do copy(I_SQUARE, I) goto 3
+	3: do square(I_SQUARE) goto 4
+	4: do conservative_sum(Y, I_SQUARE, C) goto 5
+	5: do conservative_sum(Y, I, C) goto 6
+	6: do dec X goto 7
+	7: if zero X then goto 0 else goto 1
+}
