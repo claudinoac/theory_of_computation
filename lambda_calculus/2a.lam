@@ -1,0 +1,71 @@
+let
+
+
+-- Booleanos
+true = \x y. x;
+false = \x y. y;
+
+-- if
+if = \b e1 e2. ((b e1) e2);
+
+-- not 
+not = \b. if b false true;
+
+-- and
+and = \b1 b2. if b1 b2 false;
+
+-- or 
+or = \b1 b2. if b1 true b2;
+
+-- successor 
+succ = \n. (\a b. a( n a b) );
+
+-- soma
+add = \n1 n2. \a b. n1 a (n2 a b);
+
+--multiplicação
+
+mul = \n1 n2. \a b. n1(n2 a) b;
+
+-- par
+pair = \n1 n2. (\c. c n1 n2);
+
+-- first
+fst = \p. p true;
+
+-- second
+snd = \p. p false;
+
+-- Shift Inc
+shiftInc = \p. pair (snd p) (succ (snd p) );
+
+-- predecessor
+pred = \n. fst (n shiftInc (pair 0 0));
+
+--subtração
+sub = \n1 n2. n2 pred n1;
+
+-- teste zero
+isZero = \n. n (\x. false) true;
+
+--exponenciação
+exponenciacao = \n1 n2. n2 (\x. mul n1 x) 1;
+
+--Listas
+empty = \x. true;
+cons = pair;
+head = fst;
+tail = snd;
+-- Teste se a lista está vazia
+isEmpty = \l. l (\x y. false);
+
+-- COMBINADOR DE PONTO FIXO
+    Y = \f. (\x. f (x x)) (\x. f (x x));  
+
+---------------------------------------------------------
+-- Questão 2B: Calcular o polinomio a²+2b+3
+  first = \n1. exponenciacao n1 2;
+  second = \n2. mul n2 2;
+  polinomio = \n1 n2. add (add (first n1) (second n2)) 3;
+
+in polinomio 2 3 -- deve ser 13
