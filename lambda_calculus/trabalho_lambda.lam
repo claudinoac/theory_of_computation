@@ -1,0 +1,245 @@
+let
+
+    true = \x y. x;
+    false = \x y. y;
+    
+    if = \b e1 e2. b e1 e2;
+
+    not = \b. b false true;
+
+    and = \b1 b2. if b1 b2 false;
+
+    or = \b1 b2. if b1 true b2;
+
+    zero = \f x. x; -- pode-se usar 0 por praticidade
+    um = \f x. f x; -- 1
+    dois = \f x. f (f x); -- 2
+
+    succ = \n. \A B. A (n A B);
+
+    add = \n1 n2. n1 succ n2;
+    add2 = \n1 n2. \A B. n1 A (n2 A B);
+
+    mult = \n1 n2. n1 (\x. add n2 x) 0;
+
+    isZero = \n. n (\x. false) true;
+    isPos = \n. not (isZero n); 
+
+    pair = \a b. \c. c a b;
+    fst = \p. p true;
+    snd = \p. p false;
+
+    swap = \p. pair (snd p) (fst p);
+    shiftInc = \p. pair (snd p) (succ (snd p));
+ 
+    -- (pred n) calcula n-1 se n>0, n se n=0 
+    pred = \n. fst (n shiftInc (pair 0 0));
+
+    -- (sub a b) calcula a - b
+    sub = \a b. b pred a;
+
+    -- (menor a b) testa a < b
+    menor = \a b. isPos (sub b a);
+    
+    empty = \x. true;
+    cons = pair;
+
+    isEmpty = \l. l (\a b. false);
+    head = fst;
+    tail = snd;
+    
+    Y = \f. (\x. f(x x)) (\x. f(x x));
+
+    -------------------------------------------------------------------
+
+    -- Questão 1A: zpos cod(x) = true if x > 0 else false
+        -- Testcases
+            -- zpos 0 -- retorna true
+            -- zpos 3 -- retorna false
+            -- zpos 8 -- retorna true
+            -- zpos 5 -- retorna false
+          
+
+    P = \R. \i. \n. if (isZero i)
+                          (if (isZero n)
+                             true
+                             (R 1 (pred n))
+                          )
+                          (if (isZero n)
+                             false
+                             (R 0 (pred n))
+                          );
+
+ 
+    even = \x. (Y P) 0 x;
+    odd = \x. (Y P) 1 x;
+
+    -- x >0 true else false
+    zpos = \x. even x;
+    zneg = \x. odd x;
+
+    -------------------------------------------------------------------
+
+    -- Questão 1B: zinv cod(x) = cod(-x)
+        -- Testcases
+            -- zinv 0 -- retorna 0
+            -- zinv 3 -- retorna 4
+            -- zinv 8 -- retorna 7
+            -- zinv 5 -- retorna 6
+
+    zinv = \x. if (zpos x) (sub x 1)
+                           (add x 1);
+
+    -------------------------------------------------------------------
+
+    -- Questão 1C: zsoma cod(x) cod(y) = cod (x + y)
+        -- Testcases
+            --  zsoma 10 3 -- 5 + (-2) = 3 -- retorna 6
+            --  zsoma 3 10 -- (-2) + 5 = 3 -- retorna 6
+            --  zsoma 2 6 -- 1 + 3 = 4 -- retorna 8
+            --  zsoma 6 2 -- 3 + 1 = 4 -- retorna 8
+            --  zsoma 5 9 -- (-3) + (-5) = -8 -- retorna 15
+            --  zsoma 9 5 -- (-5) + (-3) = -8 -- retorna 15
+            --  zsoma 1 3 -- (-1) + (-2) = -3 -- retorna 5
+
+    zsoma = \x y. if (zpos x)
+                        (if (zpos y)
+                              (add x y)
+                              (if (menor y x)
+                                 (sub (sub x y) 1)
+                                 (sub (sub y x) 1)
+                              )
+                        )
+                        (if (zneg y)
+                              (add (add x y) 1)
+                              (if (menor y x)
+                                 (sub (sub x y) 1)
+                                 (sub (sub y x) 1)
+                              )    
+                        );
+
+    -------------------------------------------------------------------
+
+    -- Questão 1D: zmult cod(x) cod(y) = cod(x * y)
+        -- Testcases
+            -- zmult 10 3 -- 5 * (-2) = -10 -- retorna 19
+            -- zmult  3 10 -- (-2) * 5 = -10 -- retorna 19
+            -- zmult  2 6 -- 1 * 3 = 3 -- retorna 6
+            -- zmult  6 2 -- 3 * 1 = 3 -- retorna 6
+            -- zmult  5 9 -- (-3) * (-5) = 15 -- retorna 30
+            -- zmult  9 5 -- (-5) * (-3) = 15 -- retorna 30
+            -- zmult  1 3 -- (-1) * (-2) = 2 -- retorna 4
+
+    div_2_rec = \R n q. if (isZero n)
+                              (q)
+                              (R (sub n 2) (add q 1));
+    div_2 = \x. (Y div_2_rec) x 0;
+
+    cod_inv = \x. div_2 x;
+
+    mult_decod = \x y. (mult (cod_inv x) (cod_inv y));
+    zmult = \x y. if (
+        (or (and (zpos x) (zpos y)) (and (zneg x) (zneg y)))
+           (mult (mult_decod x y) 2)
+           (sub (mult (mult_decod x y) 2) 1)
+        );
+
+    -------------------------------------------------------------------
+    -- Questão 2A: Se A<B, retorna true; Senão, retorna false
+        -- Testcases 
+            -- menor 1 2 
+            -- menor 4 3
+            -- menor 5 6
+       -- teste menor
+       menor = \a b. not(isZero (sub b a));
+       -- teste maior
+       maior = \a b. menor b a; 
+
+    -------------------------------------------------------------------
+
+    -- Questão 2B: Calcular o polinomio a²+2b+3
+        -- Testcases 
+            -- polinomio 2 3 -- 4 + 6 + 3 = 13 -- retorna 13
+            -- polinomio 7 5 -- 49 + 10 + 3 = 62 -- retorna 62
+      first = \n1. 2 n1;
+      second = \n2. mult n2 2;
+      polinomio = \n1 n2. add (add (first n1) (second n2)) 3;
+
+    -------------------------------------------------------------------
+
+    -- Questão 2C: (a,(b, c)) = ((a, b),(a, c))
+        -- Testcases 
+            -- distribui (pair 2 (pair 3 4)) -- (pair (pair 2 3) (pair 2 4)) -- retorna ((2,3), (2,4))
+
+      a = \p. (fst p);
+      b = \p. (fst (snd p));
+      c = \p. (snd (snd p));
+      distribui = \p. pair (pair (a p) (b p)) (pair (a p) (c p));
+
+    -------------------------------------------------------------------
+
+    -- Questão 2D: [a1,a2,...,an] [b1, b2,..., bk]=[a1,a2,...,an,b1,b2,...,bk]
+        -- Testcases 
+           -- concatena (pair 2 (pair 3 (pair 4 5))) (pair 6 (pair 7 8))
+    conc_pad = \S. \l1 l2. if (isEmpty l1) 
+                                  (if (isEmpty l2)
+                                       empty
+                                       l2
+                                  )
+                                  (if (isEmpty l2)
+                                       l1
+                                       (S (snd l1) (pair (fst l1) l2))
+                                  );
+    concatena = Y conc_pad;
+
+in
+
+
+    -- Testcases
+        -- Q-1A
+        zpos 0 -- retorna true
+        -- zpos 3 -- retorna false
+        -- zpos 8 -- retorna true
+        -- zpos 5 -- retorna false
+        ------------------------------------------------------
+        -- Q-1B
+        -- zinv 0 -- retorna 0
+        -- zinv 3 -- retorna 4
+        -- zinv 8 -- retorna 7
+        -- zinv 5 -- retorna 6
+        ------------------------------------------------------
+        -- Q-1C
+        --  zsoma 10 3 -- 5 + (-2) = 3 -- retorna 6
+        --  zsoma 3 10 -- (-2) + 5 = 3 -- retorna 6
+        --  zsoma 2 6 -- 1 + 3 = 4 -- retorna 8
+        --  zsoma 6 2 -- 3 + 1 = 4 -- retorna 8
+        --  zsoma 5 9 -- (-3) + (-5) = -8 -- retorna 15
+        --  zsoma 9 5 -- (-5) + (-3) = -8 -- retorna 15
+        --  zsoma 1 3 -- (-1) + (-2) = -3 -- retorna 5
+        ------------------------------------------------------
+        -- Q-1D
+        -- zmult 10 3 -- 5 * (-2) = -10 -- retorna 19
+        -- zmult  3 10 -- (-2) * 5 = -10 -- retorna 19
+        -- zmult  2 6 -- 1 * 3 = 3 -- retorna 6
+        -- zmult  6 2 -- 3 * 1 = 3 -- retorna 6
+        -- zmult  5 9 -- (-3) * (-5) = 15 -- retorna 30
+        -- zmult  9 5 -- (-5) * (-3) = 15 -- retorna 30
+        -- zmult  1 3 -- (-1) * (-2) = 2 -- retorna 4
+        ------------------------------------------------------
+        -- Q-2A
+        -- menor 1 2 
+        -- menor 4 3
+        -- menor 5 6
+        ------------------------------------------------------
+        -- Q-2B
+        -- polinomio 2 3 -- 4 + 6 + 3 = 13 -- retorna 13
+        -- polinomio 7 5 -- 49 + 10 + 3 = 62 -- retorna 62
+        ------------------------------------------------------------------------------------------------------------
+        -- Q-2C
+        -- distribui (pair 2 (pair 3 4)) 
+           -- (pair (pair 2 3) (pair 2 4)) -- retorna ((2,3), (2,4))
+        ------------------------------------------------------------------------------------------------------------
+        -- Q-2D
+        -- concatena (pair 2 (pair 3 (pair 4 5))) (pair 6 7)
+           -- (pair 2 (pair 3 (pair 4 (pair 5 (pair 6 7)))))
+        ------------------------------------------------------------------------------------------------------------

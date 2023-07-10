@@ -1,0 +1,95 @@
+let
+
+    true = \x y. x;
+    false = \x y. y;
+    
+    if = \b e1 e2. b e1 e2;
+
+    not = \b. b false true;
+
+    and = \b1 b2. if b1 b2 false;
+
+    or = \b1 b2. if b1 true b2;
+
+    zero = \f x. x; -- pode-se usar 0 por praticidade
+    um = \f x. f x; -- 1
+    dois = \f x. f (f x); -- 2
+
+    succ = \n. \A B. A (n A B);
+
+    add = \n1 n2. n1 succ n2;
+    add2 = \n1 n2. \A B. n1 A (n2 A B);
+
+    mult = \n1 n2. n1 (\x. add n2 x) 0;
+
+    isZero = \n. n (\x. false) true;
+    isPos = \n. not (isZero n); 
+
+    pair = \a b. \c. c a b;
+    fst = \p. p true;
+    snd = \p. p false;
+
+    swap = \p. pair (snd p) (fst p);
+    shiftInc = \p. pair (snd p) (succ (snd p));
+ 
+    -- (pred n) calcula n-1 se n>0, n se n=0 
+    pred = \n. fst (n shiftInc (pair 0 0));
+
+    -- (sub a b) calcula a - b
+    sub = \a b. b pred a;
+
+    -- (menor a b) testa a < b
+    menor = \a b. isPos (sub b a);
+    
+    empty = \x. true;
+    cons = pair;
+
+    isEmpty = \l. l (\a b. false);
+    head = fst;
+    tail = snd;
+    
+    Y = \f. (\x. f(x x)) (\x. f(x x));
+
+    P = \R. \i. \n. if (isZero i)
+                          (if (isZero n)
+                             true
+                             (R 1 (pred n))
+                          )
+                          (if (isZero n)
+                             false
+                             (R 0 (pred n))
+                          );
+
+ 
+    even = \x. (Y P) 0 x;
+    odd = \x. (Y P) 1 x;
+
+    -- x >0 true else false
+    zpos = \x. even x;
+    zneg = \x. odd x;
+
+    zsoma = \x y. if (zpos x)
+                        (if (zpos y)
+                              (add x y)
+                              (if (menor y x)
+                                 (sub (sub x y) 1)
+                                 (sub (sub y x) 1)
+                              )
+                        )
+                        (if (zneg y)
+                              (add (add x y) 1)
+                              (if (menor y x)
+                                 (sub (sub x y) 1)
+                                 (sub (sub y x) 1)
+                              )    
+                        );
+
+in
+    -- Testcases
+    -- zsoma 10 3 -- 5 + (-2) = 3 -- retorna 6
+    --  zsoma 3 10 -- (-2) + 5 = 3 -- retorna 6
+    --  zsoma 2 6 -- 1 + 3 = 4 -- retorna 8
+    --  zsoma 6 2 -- 3 + 1 = 4 -- retorna 8
+    --  zsoma 5 9 -- (-3) + (-5) = -8 -- retorna 15
+    --  zsoma 9 5 -- (-5) + (-3) = -8 -- retorna 15
+    zsoma 1 3 -- (-1) + (-2) = -3 -- retorna 5

@@ -1,0 +1,8 @@
+-- Questão 2C: (a,(b, c)) = ((a, b),(a, c))
+let 
+    a = \p. (fst p);
+    b = \p. (fst (snd p));
+    c = \p. (snd (snd p));
+    distribui = \p. pair (pair (a p) (b p)) (pair (a p) (c p));
+in
+    distribui (pair 2 (pair 3 4)) -- (2, (3, 4) -> ((2,3), (2,4))
